@@ -3,17 +3,37 @@
     class="fill-height d-flex justify-center align-center"
     max-width="900"
   >
-    <div>
-      <v-img class="mb-4" height="150" src="@/assets/logo.png" />
+    <div class="w-75">
+      <v-img class="mb-4" height="100" src="@/assets/logo.png" />
 
       <div class="mb-8 text-center">
-        <h1 class="text-h2 font-weight-bold">Missing Item Finder</h1>
+        <h1 class="text-h3 font-weight-bold">Missing Item Finder</h1>
       </div>
-      <div>
-        <div v-if="jsonData">
-          <pre>{{ JSON.stringify(jsonData, null, 2) }}</pre>
-        </div>
-        <div v-if="error">{{ error }}</div>
+      <div class="d-flex ga-5" v-if="jsonData">
+        <v-card
+          class="bg-black pa-3 w-75 overflow-auto"
+          height="600"
+          variant="outlined"
+        >
+          <v-card
+            class="ma-3 pa-3 cursor-pointer"
+            v-for="(item, index) in jsonData.size_totals"
+            :key="index"
+            @click="selectItem = index"
+            :color="selectItem === index ? 'primary' : true"
+
+          >
+            <p>Size: {{ index }}</p>
+            <p>Total: {{ item }}</p>
+          </v-card>
+        </v-card>
+        <v-data-table-virtual
+          height="500"
+          class="pa-5"
+          :items="items"
+          hide-default-footer
+          fixed-header
+        ></v-data-table-virtual>
       </div>
       <v-file-upload
         v-if="!jsonData"
@@ -33,11 +53,13 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import axios from "axios";
 
 const jsonData = ref(null);
 const error = ref(null);
+const selectItem = ref(null);
+const items = ref([]);
 
 const handleFileUpload = async (event) => {
   const file = event.target.files[0];
@@ -55,10 +77,20 @@ const handleFileUpload = async (event) => {
       }
     );
     jsonData.value = response.data;
+
     error.value = null;
   } catch (err) {
     error.value = err.message || "An error occurred";
     jsonData.value = null;
   }
 };
+
+watch(selectItem, async (newSelectItem) => {
+  items.value = Object.keys(
+    jsonData.value.size_details[newSelectItem].Description
+  ).map((key) => ({
+    description: jsonData.value.size_details[newSelectItem].Description[key],
+    units: jsonData.value.size_details[newSelectItem].Units[key],
+  }));
+});
 </script>
