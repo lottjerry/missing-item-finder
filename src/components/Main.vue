@@ -75,7 +75,7 @@ const handleFileUpload = async (event) => {
 
   try {
     const response = await axios.post(
-      "http://129.80.54.161:8080/upload-csv/",
+      "https://missing-item-finder-api.onrender.com/upload-csv/",
       formData,
       {
         headers: {
