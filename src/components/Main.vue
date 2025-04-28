@@ -8,7 +8,11 @@
 
       <div class="mb-8 text-center">
         <h1 class="text-h3 font-weight-bold">Missing Item Finder</h1>
+        <v-btn @click="newFile" class="mt-5" v-if="jsonData" color="primary"
+          >New File</v-btn
+        >
       </div>
+
       <div class="d-flex ga-5" v-if="jsonData">
         <v-card
           class="bg-black pa-3 w-75 overflow-auto"
@@ -21,7 +25,6 @@
             :key="index"
             @click="selectItem = index"
             :color="selectItem === index ? 'primary' : true"
-
           >
             <p>Size: {{ index }}</p>
             <p>Total: {{ item }}</p>
@@ -61,6 +64,10 @@ const error = ref(null);
 const selectItem = ref(null);
 const items = ref([]);
 
+const newFile = () => {
+  jsonData.value = null;
+};
+
 const handleFileUpload = async (event) => {
   const file = event.target.files[0];
   const formData = new FormData();
@@ -68,7 +75,7 @@ const handleFileUpload = async (event) => {
 
   try {
     const response = await axios.post(
-      "http://localhost:8000/upload-csv/",
+      "http://129.80.54.161:8080/upload-csv/",
       formData,
       {
         headers: {
@@ -77,11 +84,11 @@ const handleFileUpload = async (event) => {
       }
     );
     jsonData.value = response.data;
-
     error.value = null;
   } catch (err) {
     error.value = err.message || "An error occurred";
     jsonData.value = null;
+    alert(error);
   }
 };
 
